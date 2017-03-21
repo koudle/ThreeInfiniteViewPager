@@ -9,12 +9,16 @@ import android.widget.TextView;
 
 import com.koudle.threeinfiniteviewpagerlibrary.InfiniteViewPagerAdapter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Created by kl on 17-3-12.
  */
 
 public class MyInfiViewPagerAdapter<T> extends InfiniteViewPagerAdapter {
     private Context mContenxt;
+    private List<View> mBufferView = new ArrayList<>();
 
     public MyInfiViewPagerAdapter(Context context, ViewPager viewPager){
         super(viewPager);
@@ -23,7 +27,10 @@ public class MyInfiViewPagerAdapter<T> extends InfiniteViewPagerAdapter {
 
     @Override
     public Object instantiateItem(ViewGroup container, int position) {
-        TextView textView1 = new TextView(mContenxt);
+        TextView textView1 =  mBufferView.size() >0 ? (TextView) mBufferView.remove(0) : null;
+        if(textView1 == null) {
+            textView1 = new TextView(mContenxt);
+        }
         textView1.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
         InfiniteData data = (InfiniteData) getItemData(getRealPosition(position));
         String str = new String();
@@ -46,6 +53,7 @@ public class MyInfiViewPagerAdapter<T> extends InfiniteViewPagerAdapter {
 
     @Override
     public void destroyItem(ViewGroup container, int position, Object object) {
+        mBufferView.add((View)object);
         container.removeView((View)object);
     }
 }
