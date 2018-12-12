@@ -32,7 +32,7 @@ public class MyInfiViewPagerAdapter<T> extends InfiniteViewPagerAdapter {
             textView1 = new TextView(mContenxt);
         }
         textView1.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-        InfiniteData data = (InfiniteData) getItemData(getRealPosition(position));
+        InfiniteData data = (InfiniteData) getRealData(position);
         String str = new String();
         for (int i= 0;i<99;i++) {
             str +=String.valueOf(data.mText);

@@ -11,6 +11,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Created by kl on 17-3-12.
+ * 总共有三个item，index为0，1，2，但是只有1总是可见的，0和2是用来实现无限滑动效果的
  */
 public abstract class InfiniteViewPagerAdapter<T> extends PagerAdapter {
 
@@ -29,16 +30,17 @@ public abstract class InfiniteViewPagerAdapter<T> extends PagerAdapter {
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                if(positionOffset == 0 && positionOffsetPixels == 0) {
-                }
+                //滑动过程中
             }
 
             @Override
             public void onPageSelected(int position) {
                 if(position == 0){
+                    //表示要往前翻页
                     InfiniteViewPagerAdapter.this.leftSlide();
                     InfiniteViewPagerAdapter.this.notifyDataSetChanged();
                 }else if(position == 2){
+                    //表示要往后翻页
                     InfiniteViewPagerAdapter.this.rightSlide();
                     InfiniteViewPagerAdapter.this.notifyDataSetChanged();
                 }
@@ -47,35 +49,30 @@ public abstract class InfiniteViewPagerAdapter<T> extends PagerAdapter {
             @Override
             public void onPageScrollStateChanged(int state) {
                 if(state == ViewPager.SCROLL_STATE_IDLE){
-                    viewPager.setCurrentItem(InfiniteViewPagerAdapter.this.getRealCount(), false);
+                    viewPager.setCurrentItem(InfiniteViewPagerAdapter.this.getVisibleItemPosition(), false);
                 }
             }
         });
     }
 
-
-    public T getItemData(int position){
-        if(position < 0 || position >= mVideoDataList.size() ) return null;
-
-        return mVideoDataList.get(position);
-    }
-
+    //获取总共有多少个数据
     public int getDataCount(){
         return mVideoDataList.size();
     }
 
-    public int getRealCount(){
+    //用于显示view的position
+    private int getVisibleItemPosition(){
         return REAL_SHOW_COUNT;
     }
 
     @Override
     public int getCount() {
+        //item的数量只能为0个或3个
         if (mVideoDataList.size() == 0) {
             return 0;
         } else {
-            return getRealCount() + INFINITE_COUNT_EXTRA;
+            return getVisibleItemPosition() + INFINITE_COUNT_EXTRA;
         }
-
     }
 
     public void insertDataStart(ArrayList<T> dataList){
@@ -132,9 +129,17 @@ public abstract class InfiniteViewPagerAdapter<T> extends PagerAdapter {
         }
     }
 
-    public int getRealPosition(int position){
+    //获得真正要显示的数据
+    public T getRealData(int position){
+        int realPosition = getRealPosition(position);
+        if(mVideoDataList.size() > realPosition){
+            return mVideoDataList.get(realPosition);
+        }else {
+            return null;
+        }
+    }
 
-
+    private int getRealPosition(int position){
         int realPosition = 0;
         if(position == 0){
             realPosition = mPositionOffset - 1;
